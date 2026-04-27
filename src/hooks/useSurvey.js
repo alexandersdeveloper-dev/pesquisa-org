@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { SECTIONS } from '../data/survey'
 import { saveSubmission } from '../services/storage'
 
-export function useSurvey(token) {
+export function useSurvey() {
   const flatQuestions = useMemo(() => {
     const arr = []
     SECTIONS.forEach((sec) =>
@@ -11,14 +11,14 @@ export function useSurvey(token) {
     return arr
   }, [])
 
-  // gate(0) + identify(1) + questions
+  // choice(0) + identify(1) + questions
   const totalSteps = 2 + flatQuestions.length
 
-  const [step, setStep]         = useState(0)
-  const [identify, setIdentify] = useState({ area: '', frequencia: '' })
-  const [answers, setAnswers]   = useState({})
+  const [step, setStep]           = useState(0)
+  const [identify, setIdentify]   = useState({ modo: '', cpf: '', nome: '', cargo: '', area: '', frequencia: '' })
+  const [answers, setAnswers]     = useState({})
   const [submitted, setSubmitted] = useState(false)
-  const [protocol, setProtocol] = useState('')
+  const [protocol, setProtocol]   = useState('')
   const bodyRef = useRef(null)
 
   useEffect(() => {
@@ -34,8 +34,12 @@ export function useSurvey(token) {
   }
 
   function canAdvance() {
-    if (step === 0) return true
-    if (step === 1) return Boolean(identify.area && identify.frequencia)
+    if (step === 0) return Boolean(identify.modo)
+    if (step === 1) {
+      if (identify.modo === 'identificado') return Boolean(identify.nome && identify.cpf && identify.cargo)
+      if (identify.modo === 'anonimo')      return Boolean(identify.area && identify.frequencia)
+      return false
+    }
     const q = flatQuestions[step - 2]
     if (!q) return true
     if (q.type === 'likert') return answers[q.id] != null
@@ -63,7 +67,7 @@ export function useSurvey(token) {
       const proto = 'PS-' + Math.floor(100000 + Math.random() * 900000)
       setProtocol(proto)
       setSubmitted(true)
-      saveSubmission(proto, token)
+      saveSubmission(proto, identify.modo)
       return
     }
     setStep((s) => s + 1)

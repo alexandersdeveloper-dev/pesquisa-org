@@ -3,7 +3,7 @@ import { AREAS, FREQUENCIAS } from '../data/survey'
 import ProgressBar from './ProgressBar'
 import QuestionCard from './QuestionCard'
 
-export default function SatisfactionModal({ token, onClose, onComplete }) {
+export default function SatisfactionModal({ onClose, onComplete }) {
   const {
     flatQuestions,
     step,
@@ -19,7 +19,7 @@ export default function SatisfactionModal({ token, onClose, onComplete }) {
     toggleMulti,
     next,
     back,
-  } = useSurvey(token)
+  } = useSurvey()
 
   function close() {
     if (submitted) {
@@ -50,8 +50,8 @@ export default function SatisfactionModal({ token, onClose, onComplete }) {
         </div>
         <h4>Pesquisa enviada com sucesso.</h4>
         <p>
-          Sua contribuição foi registrada de forma <strong>totalmente anônima</strong>. Obrigado
-          por dedicar seu tempo à melhoria dos serviços públicos de Parintins.
+          Sua contribuição foi registrada. Obrigado por dedicar seu tempo à melhoria
+          dos serviços públicos de Parintins.
         </p>
         <p>Os resultados consolidados serão publicados no portal da Prefeitura Municipal.</p>
         <div className="protocol">
@@ -64,32 +64,53 @@ export default function SatisfactionModal({ token, onClose, onComplete }) {
       </div>
     )
   } else if (step === 0) {
-    stepInfo  = 'Verificação de acesso'
-    nextLbl   = 'Iniciar pesquisa'
+    stepInfo  = 'Identificação'
+    nextLbl   = 'Continuar'
     showArrow = true
     content = (
-      <div className="token-gate">
-        <div className="lock">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
+      <div>
+        <div className="qheader">
+          <h3 className="qtxt">Como você prefere participar?</h3>
+          <p className="qsub">Sua escolha determina quais informações serão coletadas. Ambas as formas são igualmente válidas.</p>
         </div>
-        <h4>Confirme o uso do seu token</h4>
-        <p>
-          Este token é exclusivo desta sessão e será marcado como utilizado após o envio. Você
-          poderá responder a pesquisa <strong>uma única vez</strong>.
-        </p>
-        <div className="tk-display">{token}</div>
-        <div className="id-note" style={{ textAlign: 'left', marginTop: 6 }}>
+        <div className="id-choice-grid">
+          <button
+            type="button"
+            className={'id-choice-card' + (identify.modo === 'identificado' ? ' sel' : '')}
+            onClick={() => setIdentify((i) => ({ ...i, modo: 'identificado' }))}
+          >
+            <div className="choice-ico">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <strong>Identificado</strong>
+            <p>Informar nome, CPF e cargo. Sua participação será registrada nominalmente.</p>
+          </button>
+          <button
+            type="button"
+            className={'id-choice-card' + (identify.modo === 'anonimo' ? ' sel' : '')}
+            onClick={() => setIdentify((i) => ({ ...i, modo: 'anonimo' }))}
+          >
+            <div className="choice-ico">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2 4 5v6c0 5 3.5 9.7 8 11 4.5-1.3 8-6 8-11V5l-8-3z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </div>
+            <strong>Anônimo</strong>
+            <p>Participar sem informar dados pessoais. Respostas analisadas de forma agregada.</p>
+          </button>
+        </div>
+        <div className="id-note">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
           <span>
-            Ao clicar em <strong>Iniciar pesquisa</strong> você confirma que suas respostas serão
-            tratadas de forma agregada e anônima, conforme a política da Prefeitura Municipal de
-            Parintins.
+            Em ambos os casos, suas respostas são tratadas conforme a política de privacidade
+            da Prefeitura Municipal de Parintins e a LGPD.
           </span>
         </div>
       </div>
@@ -98,46 +119,88 @@ export default function SatisfactionModal({ token, onClose, onComplete }) {
     stepInfo  = `Etapa 1 de ${flatQuestions.length + 1}`
     nextLbl   = 'Continuar'
     showArrow = true
-    content = (
-      <div>
-        <div className="qheader">
-          <div className="qmeta">Informações gerais</div>
-          <h3 className="qtxt">Conte-nos um pouco sobre sua relação com os serviços da Prefeitura.</h3>
-          <p className="qsub">Estes dados são utilizados apenas para análise por grupos, de forma anônima.</p>
-        </div>
-        <div className="id-form">
-          <div className="id-field">
-            <label>Área / Serviço utilizado</label>
-            <select
-              value={identify.area}
-              onChange={(e) => setIdentify((i) => ({ ...i, area: e.target.value }))}
-            >
-              <option value="">Selecione...</option>
-              {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
-            </select>
+
+    if (identify.modo === 'identificado') {
+      content = (
+        <div>
+          <div className="qheader">
+            <div className="qmeta">Identificação</div>
+            <h3 className="qtxt">Preencha seus dados de identificação.</h3>
+            <p className="qsub">Estas informações são necessárias para o registro nominal da sua participação.</p>
           </div>
-          <div className="id-field">
-            <label>Frequência de uso</label>
-            <select
-              value={identify.frequencia}
-              onChange={(e) => setIdentify((i) => ({ ...i, frequencia: e.target.value }))}
-            >
-              <option value="">Selecione...</option>
-              {FREQUENCIAS.map((f) => <option key={f} value={f}>{f}</option>)}
-            </select>
+          <div className="id-form" style={{ gridTemplateColumns: '1fr' }}>
+            <div className="id-field">
+              <label>Nome completo</label>
+              <input
+                type="text"
+                placeholder="Seu nome completo"
+                value={identify.nome}
+                onChange={(e) => setIdentify((i) => ({ ...i, nome: e.target.value }))}
+              />
+            </div>
+            <div className="id-field">
+              <label>CPF</label>
+              <input
+                type="text"
+                placeholder="000.000.000-00"
+                value={identify.cpf}
+                onChange={(e) => setIdentify((i) => ({ ...i, cpf: e.target.value }))}
+              />
+            </div>
+            <div className="id-field">
+              <label>Cargo / Função</label>
+              <input
+                type="text"
+                placeholder="Seu cargo ou função"
+                value={identify.cargo}
+                onChange={(e) => setIdentify((i) => ({ ...i, cargo: e.target.value }))}
+              />
+            </div>
           </div>
         </div>
-        <div className="id-note">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2 4 5v6c0 5 3.5 9.7 8 11 4.5-1.3 8-6 8-11V5l-8-3z" />
-          </svg>
-          <span>
-            Estas informações <strong>não identificam</strong> você individualmente. São utilizadas
-            apenas para análise estatística.
-          </span>
+      )
+    } else {
+      content = (
+        <div>
+          <div className="qheader">
+            <div className="qmeta">Informações gerais</div>
+            <h3 className="qtxt">Conte-nos um pouco sobre sua relação com os serviços da Prefeitura.</h3>
+            <p className="qsub">Estes dados são utilizados apenas para análise por grupos, de forma anônima.</p>
+          </div>
+          <div className="id-form">
+            <div className="id-field">
+              <label>Área / Serviço utilizado</label>
+              <select
+                value={identify.area}
+                onChange={(e) => setIdentify((i) => ({ ...i, area: e.target.value }))}
+              >
+                <option value="">Selecione...</option>
+                {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </div>
+            <div className="id-field">
+              <label>Frequência de uso</label>
+              <select
+                value={identify.frequencia}
+                onChange={(e) => setIdentify((i) => ({ ...i, frequencia: e.target.value }))}
+              >
+                <option value="">Selecione...</option>
+                {FREQUENCIAS.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="id-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2 4 5v6c0 5 3.5 9.7 8 11 4.5-1.3 8-6 8-11V5l-8-3z" />
+            </svg>
+            <span>
+              Estas informações <strong>não identificam</strong> você individualmente. São utilizadas
+              apenas para análise estatística.
+            </span>
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
   } else {
     const qIdx = step - 2
     const q    = flatQuestions[qIdx]
@@ -159,7 +222,7 @@ export default function SatisfactionModal({ token, onClose, onComplete }) {
     : step === 0
     ? 'Antes de começar'
     : step === 1
-    ? 'Perfil do respondente'
+    ? identify.modo === 'identificado' ? 'Seus dados de identificação' : 'Perfil do respondente'
     : 'Sua opinião conta'
 
   return (

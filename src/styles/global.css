@@ -941,36 +941,33 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
   display: flex; gap: 10px; align-items: start;
 }
 
-/* ---------- Token gate ---------- */
-.token-gate { text-align: center; padding: 8px 0 4px; }
-.token-gate .lock {
-  width: 56px; height: 56px;
-  margin: 0 auto 18px;
-  border-radius: 50%;
-  background: #eaf4ff;
-  color: #1a5fa8;
-  display: grid; place-items: center;
+/* ---------- Identification choice ---------- */
+.id-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.id-choice-card {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  background: #fff;
 }
-.token-gate h4 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 22px;
-  margin: 0 0 8px;
-  letter-spacing: -.015em;
-}
-.token-gate p { color: var(--ink-500); margin: 0 0 24px; font-size: 14.5px; }
-.token-gate .tk-display {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 22px;
-  letter-spacing: .14em;
-  background: var(--bg-soft);
-  border: 1px dashed var(--line);
+.id-choice-card:hover { border-color: var(--ink-700); }
+.id-choice-card.sel { border-color: var(--ink-900); background: #fafbfd; box-shadow: 0 0 0 3px rgba(15,22,34,.04); }
+.id-choice-card .choice-ico {
+  width: 40px; height: 40px;
   border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 18px;
-  word-break: break-all;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  display: grid; place-items: center;
+  color: var(--ink-500);
 }
+.id-choice-card.sel .choice-ico { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+.id-choice-card strong { font-size: 15px; font-weight: 700; color: var(--ink-900); }
+.id-choice-card p { font-size: 13px; color: var(--ink-500); margin: 0; line-height: 1.45; }
 
 /* ---------- Done state ---------- */
 .done {
@@ -1113,6 +1110,7 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
   .footer-inner { padding: 32px 18px 18px; }
   .copyright { padding: 18px; }
   .id-form { grid-template-columns: 1fr; }
+  .id-choice-grid { grid-template-columns: 1fr; }
   .likert { grid-template-columns: repeat(5, 1fr); gap: 6px; }
   .lik { padding: 10px 4px; }
   .lik .lbl { font-size: 10.5px; }

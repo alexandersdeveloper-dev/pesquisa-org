@@ -1,6 +1,6 @@
 import InfoCard from './InfoCard'
 
-export default function Hero({ token, onStart, blocked }) {
+export default function Hero({ onStart, blocked }) {
   return (
     <section className="hero">
       <div>

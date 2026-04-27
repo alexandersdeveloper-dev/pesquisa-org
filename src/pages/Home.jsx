@@ -5,16 +5,16 @@ import Trust from '../components/Trust'
 import FAQ from '../components/FAQ'
 import SatisfactionModal from '../components/SatisfactionModal'
 
-export default function Home({ token, blocked, onStart, showSurvey, onClose, onComplete }) {
+export default function Home({ blocked, onStart, showSurvey, onClose, onComplete }) {
   return (
     <>
-      <Hero token={token} onStart={onStart} blocked={blocked} />
+      <Hero onStart={onStart} blocked={blocked} />
       <InfoCards />
       <HowItWorks />
       <Trust />
       <FAQ />
       {showSurvey && (
-        <SatisfactionModal token={token} onClose={onClose} onComplete={onComplete} />
+        <SatisfactionModal onClose={onClose} onComplete={onComplete} />
       )}
     </>
   )
