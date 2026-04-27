@@ -1144,18 +1144,20 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
   .lik { padding: 10px 4px; }
   .lik .lbl { font-size: 10.5px; }
 
-  /* Modal bottom-sheet on mobile */
-  .overlay {
-    padding: 12px 0 0;
-    align-items: flex-end;
-  }
+  /* Modal full-screen on mobile */
+  .overlay { padding: 0; align-items: stretch; }
   .modal {
-    max-height: 95vh;
-    max-height: calc(100dvh - 12px);
-    border-radius: 16px 16px 0 0;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    animation: fade .2s ease both;
+  }
+  .modal-head {
+    padding: max(20px, calc(env(safe-area-inset-top) + 16px)) 18px 14px;
   }
   .modal-body { padding: 20px 18px; }
-  .modal-head { padding: 20px 18px 14px; }
   .modal-foot {
     padding: 12px 18px;
     padding-bottom: max(12px, env(safe-area-inset-bottom));

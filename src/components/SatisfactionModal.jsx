@@ -1,9 +1,16 @@
+import { useEffect } from 'react'
 import { useSurvey } from '../hooks/useSurvey'
 import { AREAS, FREQUENCIAS } from '../data/survey'
 import ProgressBar from './ProgressBar'
 import QuestionCard from './QuestionCard'
 
 export default function SatisfactionModal({ onClose, onComplete }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
   const {
     flatQuestions,
     step,
