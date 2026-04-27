@@ -1,5 +1,92 @@
-node_modules
-dist
+# =============================================================================
+# SEGURANÇA — Nunca versionar credenciais, tokens ou chaves de API.
+# Se qualquer um desses arquivos for encontrado no histórico do git,
+# trate como comprometido e revogue/recrie as credenciais imediatamente.
+# =============================================================================
+
+# =============================================================================
+# Dependências
+# =============================================================================
+node_modules/
+.pnp
+.pnp.js
+
+# =============================================================================
+# Build / saída gerada
+# =============================================================================
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+
+# =============================================================================
+# Variáveis de ambiente e credenciais
+# =============================================================================
 .env
-.vscode
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+*.local
+
+# Arquivos de secrets e chaves (padrões comuns)
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+secrets.json
+credentials.json
+service-account.json
+
+# =============================================================================
+# Logs
+# =============================================================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =============================================================================
+# Sistema operacional
+# =============================================================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# =============================================================================
+# Editor / IDE
+# =============================================================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =============================================================================
+# Arquivos temporários
+# =============================================================================
+*.tmp
+*.temp
+*.swp
+*.bak
+*.cache
+
+# =============================================================================
+# Testes e cobertura
+# =============================================================================
+coverage/
+.nyc_output/
