@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useSurvey } from '../hooks/useSurvey'
 import { AREAS, FREQUENCIAS } from '../data/survey'
 import ProgressBar from './ProgressBar'
@@ -28,12 +28,21 @@ export default function SatisfactionModal({ onClose, onComplete }) {
     back,
   } = useSurvey()
 
+  const [showConfirm, setShowConfirm] = useState(false)
+
   function close() {
     if (submitted) {
       onComplete(protocol)
-    } else if (confirm('Tem certeza que deseja fechar a pesquisa? Suas respostas até aqui serão perdidas.')) {
+    } else if (step === 0) {
       onClose()
+    } else {
+      setShowConfirm(true)
     }
+  }
+
+  function confirmClose() {
+    setShowConfirm(false)
+    onClose()
   }
 
   const ArrowIcon = () => (
@@ -224,7 +233,23 @@ export default function SatisfactionModal({ onClose, onComplete }) {
     )
   }
 
-  const modalTitle = submitted
+  const confirmContent = (
+    <div className="confirm-exit">
+      <div className="warn-ico">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m10.29 3.86-7.9 13.7A2 2 0 0 0 4 20.56h15.82a2 2 0 0 0 1.61-3l-7.91-13.7a2 2 0 0 0-3.22 0Z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h4>Tem certeza que deseja sair?</h4>
+      <p>Suas respostas até aqui serão perdidas e não poderão ser recuperadas.</p>
+    </div>
+  )
+
+  const modalTitle = showConfirm
+    ? 'Sair da pesquisa'
+    : submitted
     ? 'Obrigado pela sua participação.'
     : step === 0
     ? 'Antes de começar'
@@ -237,7 +262,11 @@ export default function SatisfactionModal({ onClose, onComplete }) {
       className="overlay"
       role="dialog"
       aria-modal="true"
-      onClick={(e) => { if (e.target.classList.contains('overlay')) close() }}
+      onClick={(e) => {
+        if (!e.target.classList.contains('overlay')) return
+        if (showConfirm) setShowConfirm(false)
+        else close()
+      }}
     >
       <div className="modal">
         <div className="modal-head">
@@ -255,24 +284,40 @@ export default function SatisfactionModal({ onClose, onComplete }) {
         <ProgressBar value={progress()} />
 
         <div className="modal-body" ref={bodyRef}>
-          {content}
+          {showConfirm ? confirmContent : content}
         </div>
 
         <div className="modal-foot">
-          <div className="step-info">{stepInfo}</div>
-          <div className="actions">
-            {!submitted && step > 0 && (
-              <button className="btn-back" onClick={back}>Voltar</button>
-            )}
-            <button
-              className="btn-next"
-              onClick={submitted ? () => onComplete(protocol) : next}
-              disabled={!canAdvance()}
-            >
-              {nextLbl}
-              {showArrow && <ArrowIcon />}
-            </button>
-          </div>
+          {showConfirm ? (
+            <>
+              <div className="step-info">Confirmação necessária</div>
+              <div className="actions">
+                <button className="btn-back" onClick={() => setShowConfirm(false)}>
+                  Continuar respondendo
+                </button>
+                <button className="btn-danger" onClick={confirmClose}>
+                  Sair da pesquisa
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="step-info">{stepInfo}</div>
+              <div className="actions">
+                {!submitted && step > 0 && (
+                  <button className="btn-back" onClick={back}>Voltar</button>
+                )}
+                <button
+                  className="btn-next"
+                  onClick={submitted ? () => onComplete(protocol) : next}
+                  disabled={!canAdvance()}
+                >
+                  {nextLbl}
+                  {showArrow && <ArrowIcon />}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

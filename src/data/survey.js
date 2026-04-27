@@ -97,11 +97,11 @@ export const SECTIONS = [
 ]
 
 export const LIKERT = [
-  { v: 1, lbl: 'Discordo totalmente', face: '😞' },
-  { v: 2, lbl: 'Discordo',            face: '🙁' },
-  { v: 3, lbl: 'Neutro',              face: '😐' },
-  { v: 4, lbl: 'Concordo',            face: '🙂' },
-  { v: 5, lbl: 'Concordo totalmente', face: '😄' },
+  { v: 1, lbl: 'Discordo totalmente' },
+  { v: 2, lbl: 'Discordo'            },
+  { v: 3, lbl: 'Neutro'              },
+  { v: 4, lbl: 'Concordo'            },
+  { v: 5, lbl: 'Concordo totalmente' },
 ]
 
 export const AREAS = [

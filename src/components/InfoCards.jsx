@@ -13,9 +13,9 @@ const ITEMS = [
   },
   {
     cls: 'y',
-    tag: '02 / Acesso por token',
-    title: 'Token único e descartável',
-    body: 'Ao acessar este portal, um token é gerado automaticamente. Ele autoriza o preenchimento e expira após o envio — não é vinculado à sua identidade.',
+    tag: '02 / Acesso direto',
+    title: 'Sem necessidade de cadastro',
+    body: 'Ao acessar este portal, você pode iniciar a pesquisa imediatamente, sem login ou código de acesso. A participação é simples, rápida e acessível a todos os cidadãos.',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="7" cy="15" r="4" />
@@ -27,7 +27,7 @@ const ITEMS = [
     cls: 'r',
     tag: '03 / Participação única',
     title: 'Uma resposta por cidadão',
-    body: 'A pesquisa pode ser respondida apenas uma vez por dispositivo. Após o envio, o token é invalidado para preservar a integridade dos resultados.',
+    body: 'A pesquisa pode ser respondida apenas uma vez por dispositivo. Após o envio, sua participação é registrada para preservar a integridade dos resultados.',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />

@@ -3,6 +3,7 @@
   --c-orange:  #b86a2b;
   --c-yellow:  #ffb829;
   --c-red:     #ea4242;
+  --c-green:   #2aa05a;
 
   --ink-900: #0f1622;
   --ink-700: #2a3344;
@@ -767,7 +768,7 @@ footer { background: #fff; }
 }
 .progress-bar > i {
   position: absolute; left: 0; top: 0; bottom: 0;
-  background: linear-gradient(90deg, var(--c-blue), var(--c-orange));
+  background: var(--c-green);
   transition: width .3s ease;
 }
 
@@ -871,7 +872,7 @@ footer { background: #fff; }
   color: #fff;
   box-shadow: var(--shadow-md);
 }
-.lik .face { font-size: 22px; line-height: 1; }
+.lik .face { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .lik .v { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; opacity: .7; }
 .lik .lbl { font-size: 12.5px; font-weight: 600; line-height: 1.2; }
 
@@ -987,6 +988,49 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
 .id-choice-card.sel .choice-ico { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
 .id-choice-card strong { font-size: 15px; font-weight: 700; color: var(--ink-900); }
 .id-choice-card p { font-size: 13px; color: var(--ink-500); margin: 0; line-height: 1.45; }
+
+/* ---------- Exit confirmation ---------- */
+.confirm-exit {
+  text-align: center;
+  padding: 32px 20px 12px;
+}
+.confirm-exit .warn-ico {
+  width: 60px; height: 60px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: #fff8ec;
+  border: 1.5px solid #f5d98a;
+  color: #b07c1a;
+  display: grid; place-items: center;
+}
+.confirm-exit h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0 0 10px;
+  letter-spacing: -.015em;
+  color: var(--ink-900);
+}
+.confirm-exit p {
+  color: var(--ink-500);
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 38ch;
+  margin: 0 auto;
+}
+.btn-danger {
+  padding: 11px 22px;
+  background: var(--c-red);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13.5px;
+  transition: background .2s, transform .15s;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+.btn-danger:hover { background: #c73535; }
 
 /* ---------- Done state ---------- */
 .done {
