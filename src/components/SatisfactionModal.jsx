@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSurvey } from '../hooks/useSurvey'
 import { AREAS, FREQUENCIAS } from '../data/survey'
+import { isValidCPF } from '../utils/helpers'
 import ProgressBar from './ProgressBar'
 import QuestionCard from './QuestionCard'
 
@@ -162,6 +163,9 @@ export default function SatisfactionModal({ onClose, onComplete }) {
                 value={identify.cpf}
                 onChange={(e) => setIdentify((i) => ({ ...i, cpf: e.target.value }))}
               />
+              {identify.cpf && !isValidCPF(identify.cpf) && (
+                <p className="field-error">CPF inválido. Verifique o número digitado.</p>
+              )}
             </div>
             <div className="id-field">
               <label>Cargo / Função</label>

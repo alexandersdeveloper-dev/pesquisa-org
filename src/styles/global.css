@@ -950,6 +950,13 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
   min-height: 44px;
 }
 .id-field select:focus, .id-field input:focus { outline: none; border-color: var(--ink-700); }
+.field-error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--c-red);
+  font-family: var(--font-mono);
+  letter-spacing: .01em;
+}
 .id-note {
   margin-top: 18px;
   padding: 14px 16px;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { SECTIONS } from '../data/survey'
 import { saveSubmission } from '../services/storage'
+import { isValidCPF } from '../utils/helpers'
 
 export function useSurvey() {
   const flatQuestions = useMemo(() => {
@@ -36,7 +37,7 @@ export function useSurvey() {
   function canAdvance() {
     if (step === 0) return Boolean(identify.modo)
     if (step === 1) {
-      if (identify.modo === 'identificado') return Boolean(identify.nome && identify.cpf && identify.cargo)
+      if (identify.modo === 'identificado') return Boolean(identify.nome && identify.cargo) && isValidCPF(identify.cpf)
       if (identify.modo === 'anonimo')      return Boolean(identify.area && identify.frequencia)
       return false
     }
@@ -64,7 +65,9 @@ export function useSurvey() {
 
   function next() {
     if (step >= totalSteps - 1) {
-      const proto = 'PS-' + Math.floor(100000 + Math.random() * 900000)
+      const buf = new Uint32Array(1)
+      crypto.getRandomValues(buf)
+      const proto = 'PS-' + (100000 + (buf[0] % 900000))
       setProtocol(proto)
       setSubmitted(true)
       saveSubmission(proto, identify.modo)

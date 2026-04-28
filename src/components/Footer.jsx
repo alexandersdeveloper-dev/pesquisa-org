@@ -15,11 +15,11 @@ export default function Footer() {
         <div className="f-col">
           <h5>Acesso rápido</h5>
           <ul>
-            <li><a href="#">Notícias</a></li>
-            <li><a href="#">Vídeos</a></li>
-            <li><a href="#">Galeria de Fotos</a></li>
-            <li><a href="#">Agenda</a></li>
-            <li><a href="#">Transparência</a></li>
+            <li><a href="#" rel="noopener noreferrer">Notícias</a></li>
+            <li><a href="#" rel="noopener noreferrer">Vídeos</a></li>
+            <li><a href="#" rel="noopener noreferrer">Galeria de Fotos</a></li>
+            <li><a href="#" rel="noopener noreferrer">Agenda</a></li>
+            <li><a href="#" rel="noopener noreferrer">Transparência</a></li>
           </ul>
         </div>
         <div className="f-col">
