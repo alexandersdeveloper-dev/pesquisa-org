@@ -30,7 +30,7 @@ export function usePublicSurvey() {
           supabase.from('survey_sections').select('*').eq('active', true).order('sort_order'),
           supabase.from('survey_questions').select('*').eq('active', true).order('sort_order'),
           supabase.from('question_options').select('*').order('sort_order'),
-          supabase.from('service_areas').select('*').eq('active', true).order('sort_order'),
+          supabase.from('service_areas').select('*, service_area_options(id, label, sort_order)').eq('active', true).order('sort_order'),
         ])
 
         if (cancelled) return
@@ -51,7 +51,10 @@ export function usePublicSurvey() {
         setProfileFields(fieldsWithOpts)
         setSections(secs ?? [])
         setQuestions(questionsWithOpts)
-        setAreas(areasData ?? [])
+        setAreas((areasData ?? []).map((a) => ({
+          ...a,
+          options: (a.service_area_options ?? []).sort((x, y) => x.sort_order - y.sort_order),
+        })))
       } catch (err) {
         if (!cancelled) setError(err.message)
       } finally {

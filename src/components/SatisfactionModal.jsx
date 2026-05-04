@@ -27,8 +27,6 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
     back,
     questionOffset,
     profileStep,
-    areaStep,
-    hasAreas,
   } = useSurvey({ questions, profileFields, areas, campaign })
 
   const [showConfirm, setShowConfirm] = useState(false)
@@ -77,7 +75,6 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
     )
 
   } else if (step === 0) {
-    // ── Escolha do modo ──
     stepInfo  = 'Identificação'
     nextLbl   = 'Continuar'
     showArrow = true
@@ -119,7 +116,6 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
     )
 
   } else if (step === 1 && identify.modo === 'identificado') {
-    // ── Identificação pessoal (somente modo identificado) ──
     stepInfo  = 'Identificação'
     nextLbl   = 'Continuar'
     showArrow = true
@@ -153,87 +149,88 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
       </div>
     )
 
-  } else if (hasAreas && step === areaStep) {
-    // ── Seleção de Área / Serviço ──
-    stepInfo  = 'Área / Serviço'
-    nextLbl   = 'Continuar'
-    showArrow = true
-    content = (
-      <div>
-        <div className="qheader">
-          <div className="qmeta">Área / Serviço utilizado</div>
-          <h3 className="qtxt">Qual serviço você utilizou?</h3>
-          <p className="qsub">Selecione a área ou serviço sobre o qual deseja dar sua opinião.</p>
-        </div>
-        <div className="area-list">
-          {areas.map((area) => (
-            <button
-              key={area.id}
-              type="button"
-              className={'area-card' + (identify.area_id === area.id ? ' sel' : '')}
-              onClick={() => setIdentify((i) => ({ ...i, area_id: area.id }))}
-            >
-              <div className="area-card-check">
-                {identify.area_id === area.id && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
-              </div>
-              <div className="area-card-body">
-                <strong>{area.title}</strong>
-                {area.description && <p>{area.description}</p>}
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-    )
-
   } else if (step === profileStep) {
-    // ── Perfil do respondente (ambos os modos) ──
-    stepInfo  = 'Perfil do respondente'
+    stepInfo  = 'Contexto da avaliação'
     nextLbl   = 'Continuar'
     showArrow = true
     content = (
       <div>
         <div className="qheader">
-          <div className="qmeta">Perfil do respondente</div>
-          <h3 className="qtxt">Conte-nos um pouco sobre você.</h3>
-          <p className="qsub">Estes dados são utilizados apenas para análise estatística por grupos.</p>
+          <div className="qmeta">Contexto da avaliação</div>
+          <h3 className="qtxt">Conte-nos sobre você e o serviço utilizado.</h3>
+          <p className="qsub">Estas informações permitem analisar os resultados por grupos e por serviço avaliado.</p>
         </div>
+
         <div className="id-form">
-          {profileFields.map((field) => (
-            <div className="id-field" key={field.id}>
-              <label>{field.label}{field.required ? '' : ' (opcional)'}</label>
-              {field.type === 'select' ? (
+          {areas.length > 0 && (
+            <>
+              <div className="id-field">
+                <label>Área / Serviço utilizado <span className="field-required">*</span></label>
                 <select
-                  value={identify[field.id] ?? ''}
-                  onChange={(e) => setIdentify((i) => ({ ...i, [field.id]: e.target.value }))}
+                  value={identify.area_id}
+                  onChange={(e) => setIdentify((i) => ({ ...i, area_id: e.target.value, area_option_id: '' }))}
                 >
                   <option value="">Selecione...</option>
-                  {(field.options ?? []).map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                  {areas.map((area) => (
+                    <option key={area.id} value={area.id}>{area.title}</option>
                   ))}
                 </select>
-              ) : field.type === 'textarea' ? (
-                <textarea
-                  placeholder={field.label}
-                  value={identify[field.id] ?? ''}
-                  onChange={(e) => setIdentify((i) => ({ ...i, [field.id]: e.target.value }))}
-                  rows={3}
-                />
-              ) : (
-                <input
-                  type="text"
-                  placeholder={field.label}
-                  value={identify[field.id] ?? ''}
-                  onChange={(e) => setIdentify((i) => ({ ...i, [field.id]: e.target.value }))}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+              </div>
+              {(() => {
+                const selectedArea = areas.find((a) => a.id === identify.area_id)
+                if (!selectedArea?.options?.length) return null
+                return (
+                  <div className="id-field">
+                    <label>Unidade <span className="field-required">*</span></label>
+                    <select
+                      value={identify.area_option_id}
+                      onChange={(e) => setIdentify((i) => ({ ...i, area_option_id: e.target.value }))}
+                    >
+                      <option value="">Selecione...</option>
+                      {selectedArea.options.map((opt) => (
+                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                )
+              })()}
+            </>
+          )}
+          {profileFields.map((field) => (
+              <div className="id-field" key={field.id}>
+                <label>
+                  {field.label}
+                  {!field.required && <span style={{ fontWeight: 400, color: 'var(--ink-400)' }}> (opcional)</span>}
+                </label>
+                {field.type === 'select' ? (
+                  <select
+                    value={identify[field.id] ?? ''}
+                    onChange={(e) => setIdentify((i) => ({ ...i, [field.id]: e.target.value }))}
+                  >
+                    <option value="">Selecione...</option>
+                    {(field.options ?? []).map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                ) : field.type === 'textarea' ? (
+                  <textarea
+                    placeholder={field.label}
+                    value={identify[field.id] ?? ''}
+                    onChange={(e) => setIdentify((i) => ({ ...i, [field.id]: e.target.value }))}
+                    rows={3}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    placeholder={field.label}
+                    value={identify[field.id] ?? ''}
+                    onChange={(e) => setIdentify((i) => ({ ...i, [field.id]: e.target.value }))}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+
         {identify.modo === 'anonimo' && (
           <div className="id-note">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
@@ -246,13 +243,12 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
     )
 
   } else {
-    // ── Perguntas ──
-    const qIdx  = step - questionOffset
-    const q     = questions[qIdx]
-    stepInfo    = `Pergunta ${qIdx + 1} de ${questions.length} · ${q?.section ?? ''}`
-    nextLbl     = qIdx === questions.length - 1 ? 'Enviar pesquisa' : 'Continuar'
-    showArrow   = true
-    content     = (
+    const qIdx = step - questionOffset
+    const q    = questions[qIdx]
+    stepInfo   = `Pergunta ${qIdx + 1} de ${questions.length} · ${q?.section ?? ''}`
+    nextLbl    = qIdx === questions.length - 1 ? 'Enviar pesquisa' : 'Continuar'
+    showArrow  = true
+    content    = (
       <QuestionCard question={q} answers={answers} onSetAns={setAns} onToggleMulti={toggleMulti} />
     )
   }
@@ -278,10 +274,8 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
     ? 'Antes de começar'
     : step === 1 && identify.modo === 'identificado'
     ? 'Identificação'
-    : hasAreas && step === areaStep
-    ? 'Área / Serviço'
     : step === profileStep
-    ? 'Perfil do respondente'
+    ? 'Contexto da avaliação'
     : 'Sua opinião conta'
 
   return (

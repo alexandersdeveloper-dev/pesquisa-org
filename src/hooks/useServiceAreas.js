@@ -10,9 +10,12 @@ export function useServiceAreas() {
     setLoading(true)
     const { data } = await supabase
       .from('service_areas')
-      .select('*')
+      .select('*, service_area_options(id, label, sort_order)')
       .order('sort_order')
-    setAreas(data ?? [])
+    setAreas((data ?? []).map((a) => ({
+      ...a,
+      options: (a.service_area_options ?? []).sort((x, y) => x.sort_order - y.sort_order),
+    })))
     setLoading(false)
   }, [])
 
@@ -47,5 +50,25 @@ export function useServiceAreas() {
     await load()
   }
 
-  return { areas, loading, create, update, remove, reorder, reload: load }
+  async function addOption(areaId, label) {
+    const { error } = await supabase
+      .from('service_area_options')
+      .insert({ area_id: areaId, label, sort_order: 999 })
+    if (error) throw error
+    await load()
+  }
+
+  async function updateOption(optionId, label) {
+    const { error } = await supabase.from('service_area_options').update({ label }).eq('id', optionId)
+    if (error) throw error
+    await load()
+  }
+
+  async function removeOption(optionId) {
+    const { error } = await supabase.from('service_area_options').delete().eq('id', optionId)
+    if (error) throw error
+    await load()
+  }
+
+  return { areas, loading, create, update, remove, reorder, addOption, updateOption, removeOption, reload: load }
 }

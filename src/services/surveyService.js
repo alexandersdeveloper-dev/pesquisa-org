@@ -11,7 +11,8 @@ export async function persistResponse({ campaign, protocol, modo, identify, prof
     .from('responses')
     .insert({
       campaign_id: campaign?.id ?? null,
-      area_id:     identify.area_id || null,
+      area_id:        identify.area_id        || null,
+      area_option_id: identify.area_option_id || null,
       modo,
       protocol,
       profile,
