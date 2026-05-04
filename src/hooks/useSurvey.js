@@ -1,26 +1,47 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
-import { SECTIONS } from '../data/survey'
+import { useEffect, useRef, useState } from 'react'
 import { saveSubmission } from '../services/storage'
+import { persistResponse } from '../services/surveyService'
 import { isValidCPF } from '../utils/helpers'
 
-export function useSurvey() {
-  const flatQuestions = useMemo(() => {
-    const arr = []
-    SECTIONS.forEach((sec) =>
-      sec.questions.forEach((q) => arr.push({ ...q, section: sec.label, sectionId: sec.id }))
-    )
-    return arr
-  }, [])
-
-  // choice(0) + identify(1) + questions
-  const totalSteps = 2 + flatQuestions.length
-
+export function useSurvey({ questions = [], profileFields = [], areas = [], campaign = null } = {}) {
   const [step, setStep]           = useState(0)
-  const [identify, setIdentify]   = useState({ modo: '', cpf: '', nome: '', cargo: '', area: '', frequencia: '' })
+  const [identify, setIdentify]   = useState({ modo: '', cpf: '', nome: '', cargo: '', area_id: '' })
   const [answers, setAnswers]     = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [protocol, setProtocol]   = useState('')
   const bodyRef = useRef(null)
+
+  // Se há áreas cadastradas, insere etapa de seleção de área no fluxo:
+  //   Identificado: 0=modo 1=identificação 2=área 3=perfil 4…=perguntas (offset=4)
+  //   Anônimo:      0=modo 1=área          2=perfil  3…=perguntas        (offset=3)
+  // Sem áreas:
+  //   Identificado: 0=modo 1=identificação 2=perfil  3…=perguntas        (offset=3)
+  //   Anônimo:      0=modo 1=perfil        2…=perguntas                  (offset=2)
+  const hasAreas = areas.length > 0
+  const isId     = identify.modo === 'identificado'
+
+  const areaStep      = hasAreas ? (isId ? 2 : 1) : -1
+  const profileStep   = isId ? (hasAreas ? 3 : 2) : (hasAreas ? 2 : 1)
+  const questionOffset = isId ? (hasAreas ? 4 : 3) : (hasAreas ? 3 : 2)
+
+  // Filtra perguntas: globais + específicas da área selecionada
+  const activeQuestions = (hasAreas && identify.area_id)
+    ? questions.filter((q) => !q.area_id || q.area_id === identify.area_id)
+    : questions
+
+  const totalSteps = questionOffset + activeQuestions.length
+
+  // Inicializa campos dinâmicos de perfil
+  const initializedRef = useRef(false)
+  useEffect(() => {
+    if (profileFields.length === 0 || initializedRef.current) return
+    initializedRef.current = true
+    setIdentify((prev) => {
+      const extra = {}
+      profileFields.forEach((f) => { extra[f.id] = '' })
+      return { ...prev, ...extra }
+    })
+  }, [profileFields])
 
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = 0
@@ -29,23 +50,32 @@ export function useSurvey() {
   function progress() {
     if (submitted) return 100
     if (step === 0) return 4
-    if (step === 1) return 10
-    const idx = step - 2
-    return Math.min(95, 10 + Math.round(((idx + 1) / flatQuestions.length) * 85))
+    if (step === 1) return isId ? 10 : (hasAreas ? 12 : 14)
+    if (hasAreas && step === areaStep) return isId ? 18 : 14
+    if (step === profileStep) return 22
+    const idx = step - questionOffset
+    return Math.min(95, 22 + Math.round(((idx + 1) / activeQuestions.length) * 73))
   }
 
   function canAdvance() {
     if (step === 0) return Boolean(identify.modo)
-    if (step === 1) {
-      if (identify.modo === 'identificado') return Boolean(identify.nome && identify.cargo) && isValidCPF(identify.cpf)
-      if (identify.modo === 'anonimo')      return Boolean(identify.area && identify.frequencia)
-      return false
+
+    if (step === 1 && isId) {
+      return Boolean(identify.nome && identify.cargo) && isValidCPF(identify.cpf)
     }
-    const q = flatQuestions[step - 2]
+
+    if (hasAreas && step === areaStep) {
+      return Boolean(identify.area_id)
+    }
+
+    if (step === profileStep) {
+      return profileFields.filter((f) => f.required).every((f) => Boolean(identify[f.id]))
+    }
+
+    const q = activeQuestions[step - questionOffset]
     if (!q) return true
     if (q.type === 'likert') return answers[q.id] != null
     if (q.type === 'multi')  return Array.isArray(answers[q.id]) && answers[q.id].length > 0
-    if (q.type === 'text')   return true
     return true
   }
 
@@ -63,7 +93,7 @@ export function useSurvey() {
     })
   }
 
-  function next() {
+  async function next() {
     if (step >= totalSteps - 1) {
       const buf = new Uint32Array(1)
       crypto.getRandomValues(buf)
@@ -71,6 +101,8 @@ export function useSurvey() {
       setProtocol(proto)
       setSubmitted(true)
       saveSubmission(proto, identify.modo)
+      persistResponse({ campaign, protocol: proto, modo: identify.modo, identify, profileFields, questions: activeQuestions, answers })
+        .catch(console.error)
       return
     }
     setStep((s) => s + 1)
@@ -80,8 +112,19 @@ export function useSurvey() {
     if (step > 0) setStep((s) => s - 1)
   }
 
+  function reset() {
+    initializedRef.current = false
+    setStep(0)
+    setIdentify({ modo: '', cpf: '', nome: '', cargo: '', area_id: '' })
+    setAnswers({})
+    setSubmitted(false)
+    setProtocol('')
+  }
+
   return {
-    flatQuestions,
+    questions: activeQuestions,
+    profileFields,
+    areas,
     step,
     identify,
     setIdentify,
@@ -95,5 +138,10 @@ export function useSurvey() {
     toggleMulti,
     next,
     back,
+    reset,
+    questionOffset,
+    profileStep,
+    areaStep,
+    hasAreas,
   }
 }

@@ -123,3 +123,18 @@ export const FREQUENCIAS = [
   'Frequentemente (mensalmente)',
   'Muito frequentemente (semanalmente)',
 ]
+
+export const FAIXAS_ETARIAS = [
+  'Até 18 anos',
+  '18–25 anos',
+  '26–35 anos',
+  '36–50 anos',
+  '51 anos ou mais',
+]
+
+export const RELACOES = [
+  'Cidadão',
+  'Servidor público',
+  'Prestador de serviço',
+  'Empresário / Comerciante',
+]
