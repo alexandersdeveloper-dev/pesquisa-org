@@ -9,7 +9,7 @@ export function useSurvey({ questions = [], profileFields = [], areas = [], camp
   const [answers, setAnswers]     = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [protocol, setProtocol]   = useState('')
-  const [saveError, setSaveError] = useState(false)
+  const [saveError, setSaveError] = useState(null)
   const bodyRef = useRef(null)
 
   // Identificado: 0=modo 1=identificação 2=contexto 3…=perguntas (offset=3)
@@ -93,7 +93,10 @@ export function useSurvey({ questions = [], profileFields = [], areas = [], camp
       setSubmitted(true)
       saveSubmission(proto, identify.modo)
       persistResponse({ campaign, protocol: proto, modo: identify.modo, identify, profileFields, questions: activeQuestions, answers })
-        .catch((err) => { console.error(err); setSaveError(true) })
+        .catch((err) => {
+          console.error(err)
+          setSaveError(err?.message || err?.code || JSON.stringify(err) || 'Erro desconhecido')
+        })
       return
     }
     setStep((s) => s + 1)
