@@ -7,20 +7,26 @@ export async function persistResponse({ campaign, protocol, modo, identify, prof
     if (identify[f.id]) profile[f.label] = identify[f.id]
   })
 
+  const payload = {
+    campaign_id:    campaign?.id           ?? null,
+    area_id:        identify.area_id       || null,
+    area_option_id: identify.area_option_id || null,
+    modo,
+    protocol,
+    profile,
+  }
+  console.debug('[surveyService] inserting response', payload)
+
   const { data: resp, error: respErr } = await supabase
     .from('responses')
-    .insert({
-      campaign_id: campaign?.id ?? null,
-      area_id:        identify.area_id        || null,
-      area_option_id: identify.area_option_id || null,
-      modo,
-      protocol,
-      profile,
-    })
+    .insert(payload)
     .select('id')
     .single()
 
-  if (respErr) throw respErr
+  if (respErr) {
+    console.error('[surveyService] responses insert error', respErr)
+    throw respErr
+  }
 
   const answerRows = questions
     .filter((q) => answers[q.id] != null && answers[q.id] !== '')
@@ -30,9 +36,14 @@ export async function persistResponse({ campaign, protocol, modo, identify, prof
       value:       answers[q.id],
     }))
 
+  console.debug('[surveyService] inserting answers', answerRows)
+
   if (answerRows.length > 0) {
     const { error: ansErr } = await supabase.from('response_answers').insert(answerRows)
-    if (ansErr) throw ansErr
+    if (ansErr) {
+      console.error('[surveyService] response_answers insert error', ansErr)
+      throw ansErr
+    }
   }
 
   return resp.id

@@ -100,7 +100,7 @@ export const LIKERT = [
   { v: 1, lbl: 'Péssimo'   },
   { v: 2, lbl: 'Ruim'      },
   { v: 3, lbl: 'Neutro'    },
-  { v: 4, lbl: 'Ótimo'     },
+  { v: 4, lbl: 'Bom'       },
   { v: 5, lbl: 'Excelente' },
 ]
 
