@@ -1,50 +1,25 @@
 import { supabase } from '../lib/supabase'
 
 export async function persistResponse({ campaign, protocol, modo, identify, profileFields, questions, answers }) {
-  // Monta dados de perfil sem PII (nunca persiste CPF ou nome)
   const profile = {}
   profileFields.forEach((f) => {
     if (identify[f.id]) profile[f.label] = identify[f.id]
   })
 
-  const payload = {
-    campaign_id:    campaign?.id           ?? null,
-    area_id:        identify.area_id       || null,
-    area_option_id: identify.area_option_id || null,
-    modo,
-    protocol,
-    profile,
-  }
-  console.debug('[surveyService] inserting response', payload)
-
-  const { data: resp, error: respErr } = await supabase
-    .from('responses')
-    .insert(payload)
-    .select('id')
-    .single()
-
-  if (respErr) {
-    console.error('[surveyService] responses insert error', respErr)
-    throw respErr
-  }
-
-  const answerRows = questions
+  const answersArray = questions
     .filter((q) => answers[q.id] != null && answers[q.id] !== '')
-    .map((q) => ({
-      response_id: resp.id,
-      question_id: q.id,
-      value:       answers[q.id],
-    }))
+    .map((q) => ({ question_id: q.id, value: answers[q.id] }))
 
-  console.debug('[surveyService] inserting answers', answerRows)
+  const { data, error } = await supabase.rpc('insert_survey_response', {
+    p_campaign_id:    campaign?.id           ?? null,
+    p_area_id:        identify.area_id       || null,
+    p_area_option_id: identify.area_option_id || null,
+    p_modo:           modo,
+    p_protocol:       protocol,
+    p_profile:        profile,
+    p_answers:        answersArray,
+  })
 
-  if (answerRows.length > 0) {
-    const { error: ansErr } = await supabase.from('response_answers').insert(answerRows)
-    if (ansErr) {
-      console.error('[surveyService] response_answers insert error', ansErr)
-      throw ansErr
-    }
-  }
-
-  return resp.id
+  if (error) throw error
+  return data
 }
