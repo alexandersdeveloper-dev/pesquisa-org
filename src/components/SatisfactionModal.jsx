@@ -318,7 +318,7 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
         <div className="modal-foot">
           {showConfirm ? (
             <>
-              <div className="step-info">Confirmação necessária</div>
+              <div className="step-info step-info-confirm">Confirmação necessária</div>
               <div className="actions">
                 <button className="btn-back" onClick={() => setShowConfirm(false)}>Continuar respondendo</button>
                 <button className="btn-danger" onClick={confirmClose}>Sair da pesquisa</button>

@@ -1182,6 +1182,7 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
   .step:last-child { border-bottom: 0; }
   .footer-inner { padding: 32px 18px 18px; }
   .copyright { padding: 18px; }
+  .step-info-confirm { display: none; }
   .id-form { grid-template-columns: 1fr; }
   .id-choice-grid { grid-template-columns: 1fr; }
   .likert { grid-template-columns: repeat(5, 1fr); gap: 6px; }
