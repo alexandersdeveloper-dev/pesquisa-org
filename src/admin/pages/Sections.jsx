@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useSections } from '../../hooks/useSections'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { SortableTableBody, SortableTr } from '../components/SortableList'
 
 export default function Sections() {
-  const { sections, loading, create, update, remove } = useSections()
+  const { sections, loading, create, update, remove, reorder } = useSections()
   const [form, setForm]       = useState(null)
   const [editing, setEditing] = useState(null)
   const [confirm, setConfirm] = useState(null)
@@ -28,7 +29,7 @@ export default function Sections() {
   return (
     <div className="adm-page">
       <div className="adm-page-head">
-        <div><h1>Seções</h1><p>Agrupe as perguntas em seções temáticas.</p></div>
+        <div><h1>Seções</h1><p>Agrupe as perguntas em seções temáticas. Arraste para reordenar.</p></div>
         <button className="adm-btn-primary" onClick={openCreate}>+ Nova seção</button>
       </div>
 
@@ -47,23 +48,33 @@ export default function Sections() {
         </form>
       )}
 
-      <div className="adm-table-wrap">
-        <table className="adm-table">
-          <thead><tr><th>#</th><th>Nome</th><th>Status</th><th></th></tr></thead>
-          <tbody>
-            {sections.map((s, i) => (
-              <tr key={s.id} className={s.active ? '' : 'adm-row-inactive'}>
-                <td>{i + 1}</td>
-                <td><strong>{s.label}</strong></td>
-                <td><span className={'adm-status ' + (s.active ? 'active' : 'inactive')}>{s.active ? 'Ativo' : 'Inativo'}</span></td>
-                <td className="adm-actions-cell">
-                  <button className="adm-btn-sm" onClick={() => openEdit(s)}>Editar</button>
-                  {s.active && <button className="adm-btn-sm adm-btn-danger-sm" onClick={() => setConfirm(s.id)}>Desativar</button>}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="adm-card">
+        <div className="adm-card-head">
+          <div className="adm-card-head-left">
+            <span className="adm-card-eyebrow">Seções</span>
+            <span className="adm-card-title">{sections.length} {sections.length === 1 ? 'seção' : 'seções'}</span>
+          </div>
+        </div>
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr><th style={{ width: 32 }}></th><th>#</th><th>Nome</th><th>Status</th><th></th></tr>
+            </thead>
+            <SortableTableBody items={sections} onReorder={reorder}>
+              {sections.map((s, i) => (
+                <SortableTr key={s.id} id={s.id}>
+                  <td style={{ color: 'var(--ink-400)', width: 32 }}>{i + 1}</td>
+                  <td><strong>{s.label}</strong></td>
+                  <td><span className={'adm-status ' + (s.active ? 'active' : 'inactive')}>{s.active ? 'Ativo' : 'Inativo'}</span></td>
+                  <td className="adm-actions-cell">
+                    <button className="adm-btn-sm" onClick={() => openEdit(s)}>Editar</button>
+                    {s.active && <button className="adm-btn-sm adm-btn-danger-sm" onClick={() => setConfirm(s.id)}>Desativar</button>}
+                  </td>
+                </SortableTr>
+              ))}
+            </SortableTableBody>
+          </table>
+        </div>
       </div>
 
       {confirm && (

@@ -3,13 +3,14 @@ import { useQuestions } from '../../hooks/useQuestions'
 import { useServiceAreas } from '../../hooks/useServiceAreas'
 import QuestionForm from '../components/QuestionForm'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { SortableTableBody, SortableTr } from '../components/SortableList'
 
 export default function Questions() {
-  const { questions, sections, loading, create, update, remove } = useQuestions()
+  const { questions, sections, loading, create, update, remove, reorder } = useQuestions()
   const { areas, loading: areasLoading } = useServiceAreas()
-  const [mode, setMode]         = useState(null)   // 'create' | { id }
-  const [confirm, setConfirm]   = useState(null)
-  const [filterArea, setFilterArea] = useState('')  // '' = todas
+  const [mode, setMode]             = useState(null)   // 'create' | { id }
+  const [confirm, setConfirm]       = useState(null)
+  const [filterArea, setFilterArea] = useState('')
   const formRef = useRef(null)
 
   useEffect(() => {
@@ -20,18 +21,19 @@ export default function Questions() {
 
   if (loading || areasLoading) return <div className="adm-loading">Carregando…</div>
 
-  const editing = mode && mode !== 'create' ? questions.find((q) => q.id === mode.id) : null
+  const editing  = mode && mode !== 'create' ? questions.find((q) => q.id === mode.id) : null
+  const filtered = filterArea ? questions.filter((q) => q.area_id === filterArea) : questions
+  // Drag só disponível sem filtro ativo (garante que a reordenação reflita o total correto)
+  const canDrag  = filterArea === ''
 
-  const filtered = filterArea
-    ? questions.filter((q) => q.area_id === filterArea)
-    : questions
+  const colSpan = canDrag ? 8 : 7
 
   return (
     <div className="adm-page">
       <div className="adm-page-head">
         <div>
           <h1>Perguntas</h1>
-          <p>Crie e gerencie as perguntas da pesquisa.</p>
+          <p>Crie e gerencie as perguntas da pesquisa. Arraste para reordenar.</p>
         </div>
         <button className="adm-btn-primary" onClick={() => setMode('create')}>+ Nova pergunta</button>
       </div>
@@ -84,6 +86,7 @@ export default function Questions() {
           <table className="adm-table">
             <thead>
               <tr>
+                {canDrag && <th style={{ width: 32 }}></th>}
                 <th>#</th>
                 <th>Pergunta</th>
                 <th>Tipo</th>
@@ -93,36 +96,30 @@ export default function Questions() {
                 <th></th>
               </tr>
             </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: 'var(--ink-500)' }}>
-                    Nenhuma pergunta encontrada.
-                  </td>
-                </tr>
-              )}
-              {filtered.map((q, i) => (
-                <tr key={q.id} className={q.active ? '' : 'adm-row-inactive'}>
-                  <td style={{ color: 'var(--ink-500)', width: '40px' }}>{i + 1}</td>
-                  <td style={{ maxWidth: 300 }}><span className="adm-text-clamp">{q.text}</span></td>
-                  <td><span className="adm-badge">{q.type}</span></td>
-                  <td>
-                    {q.service_areas
-                      ? <span className="adm-badge adm-badge-area">{q.service_areas.title}</span>
-                      : <span style={{ color: 'var(--ink-400)', fontSize: '12px' }}>global</span>}
-                  </td>
-                  <td style={{ color: 'var(--ink-600)', fontSize: '13px' }}>{q.survey_sections?.label ?? '—'}</td>
-                  <td><span className={'adm-status ' + (q.active ? 'active' : 'inactive')}>{q.active ? 'Ativo' : 'Inativo'}</span></td>
-                  <td className="adm-actions-cell">
-                    <button className="adm-btn-sm" onClick={() => setMode({ id: q.id })}>Editar</button>
-                    {q.active
-                      ? <button className="adm-btn-sm adm-btn-danger-sm" onClick={() => setConfirm(q.id)}>Desativar</button>
-                      : <button className="adm-btn-sm adm-btn-success-sm" onClick={() => update(q.id, { active: true })}>Reativar</button>
-                    }
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            {canDrag ? (
+              <SortableTableBody items={filtered} onReorder={reorder}>
+                {filtered.map((q, i) => (
+                  <SortableTr key={q.id} id={q.id}>
+                    <QuestionCells q={q} i={i} onEdit={setMode} onConfirm={setConfirm} onUpdate={update} />
+                  </SortableTr>
+                ))}
+              </SortableTableBody>
+            ) : (
+              <tbody>
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={colSpan} style={{ textAlign: 'center', padding: '24px', color: 'var(--ink-500)' }}>
+                      Nenhuma pergunta encontrada.
+                    </td>
+                  </tr>
+                )}
+                {filtered.map((q, i) => (
+                  <tr key={q.id} className={q.active ? '' : 'adm-row-inactive'}>
+                    <QuestionCells q={q} i={i} onEdit={setMode} onConfirm={setConfirm} onUpdate={update} />
+                  </tr>
+                ))}
+              </tbody>
+            )}
           </table>
         </div>
       </div>
@@ -136,5 +133,29 @@ export default function Questions() {
         />
       )}
     </div>
+  )
+}
+
+function QuestionCells({ q, i, onEdit, onConfirm, onUpdate }) {
+  return (
+    <>
+      <td style={{ color: 'var(--ink-500)', width: '40px' }}>{i + 1}</td>
+      <td style={{ maxWidth: 300 }}><span className="adm-text-clamp">{q.text}</span></td>
+      <td><span className="adm-badge">{q.type}</span></td>
+      <td>
+        {q.service_areas
+          ? <span className="adm-badge adm-badge-area">{q.service_areas.title}</span>
+          : <span style={{ color: 'var(--ink-400)', fontSize: '12px' }}>global</span>}
+      </td>
+      <td style={{ color: 'var(--ink-600)', fontSize: '13px' }}>{q.survey_sections?.label ?? '—'}</td>
+      <td><span className={'adm-status ' + (q.active ? 'active' : 'inactive')}>{q.active ? 'Ativo' : 'Inativo'}</span></td>
+      <td className="adm-actions-cell">
+        <button className="adm-btn-sm" onClick={() => onEdit({ id: q.id })}>Editar</button>
+        {q.active
+          ? <button className="adm-btn-sm adm-btn-danger-sm" onClick={() => onConfirm(q.id)}>Desativar</button>
+          : <button className="adm-btn-sm adm-btn-success-sm" onClick={() => onUpdate(q.id, { active: true })}>Reativar</button>
+        }
+      </td>
+    </>
   )
 }

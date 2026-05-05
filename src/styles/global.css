@@ -1421,6 +1421,10 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
 .adm-table .adm-row-inactive td { color:var(--ink-400); }
 .adm-actions-cell { display:flex; gap:4px; align-items:center; }
 .adm-text-clamp   { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.adm-drag-cell    { width:32px; padding:0 6px !important; }
+.adm-drag-handle  { display:grid; place-items:center; width:24px; height:24px; border-radius:5px; color:var(--ink-300); cursor:grab; transition:background .15s,color .15s; touch-action:none; }
+.adm-drag-handle:hover  { background:var(--bg-soft); color:var(--ink-600); }
+.adm-drag-handle:active { cursor:grabbing; }
 .adm-empty        { text-align:center; color:var(--ink-400); padding:40px !important; }
 .adm-mono         { font-family:var(--font-mono); font-size:12px; }
 
