@@ -306,13 +306,12 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
         {/* honeypot: invisível para humanos, bots preenchem automaticamente */}
         <input
           type="text"
-          name="website"
           value={honeypot}
           onChange={(e) => setHoneypot(e.target.value)}
           tabIndex={-1}
-          autoComplete="off"
+          autoComplete="new-password"
           aria-hidden="true"
-          style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
+          style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: '0', height: '0', opacity: 0, pointerEvents: 'none' }}
         />
 
         <div className="modal-foot">

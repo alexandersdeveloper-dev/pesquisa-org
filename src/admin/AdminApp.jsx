@@ -94,8 +94,7 @@ export default function AdminApp() {
             </button>
           </div>
 
-          <div className="adm-sb-section"><span className="adm-sb-lbl">Pesquisa</span></div>
-          <nav className="adm-nav">
+          <nav className="adm-nav" style={{ marginTop: 12 }}>
             {NAV_PESQUISA.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.end}
                 className={({ isActive }) => 'adm-nav-item' + (isActive ? ' active' : '')}
@@ -106,7 +105,8 @@ export default function AdminApp() {
             ))}
           </nav>
 
-          <div className="adm-sb-section"><span className="adm-sb-lbl">Administração</span></div>
+          <div className="adm-nav-divider" />
+
           <nav className="adm-nav">
             {NAV_ADM.map((n) => (
               <NavLink key={n.to} to={n.to}
