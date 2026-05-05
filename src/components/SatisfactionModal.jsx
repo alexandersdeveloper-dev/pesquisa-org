@@ -19,6 +19,8 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
     submitted,
     protocol,
     bodyRef,
+    honeypot,
+    setHoneypot,
     progress,
     canAdvance,
     setAns,
@@ -300,6 +302,18 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
         <div className="modal-body" ref={bodyRef}>
           {showConfirm ? confirmContent : content}
         </div>
+
+        {/* honeypot: invisível para humanos, bots preenchem automaticamente */}
+        <input
+          type="text"
+          name="website"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
+        />
 
         <div className="modal-foot">
           {showConfirm ? (
