@@ -1073,6 +1073,8 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
   color: var(--ink-700);
 }
 
+.save-error { display:flex; align-items:center; gap:8px; margin-top:14px; padding:10px 14px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; font-size:13px; color:#b91c1c; }
+
 /* ---------- Blocked banner ---------- */
 .blocked-banner {
   margin: 24px 0 0;

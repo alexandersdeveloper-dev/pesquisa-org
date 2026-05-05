@@ -9,7 +9,7 @@ export function useSurvey({ questions = [], profileFields = [], areas = [], camp
   const [answers, setAnswers]     = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [protocol, setProtocol]   = useState('')
-  const [honeypot, setHoneypot]   = useState('')
+  const [saveError, setSaveError] = useState(false)
   const bodyRef = useRef(null)
 
   // Identificado: 0=modo 1=identificação 2=contexto 3…=perguntas (offset=3)
@@ -86,8 +86,6 @@ export function useSurvey({ questions = [], profileFields = [], areas = [], camp
 
   async function next() {
     if (step >= totalSteps - 1) {
-      // Honeypot: bots preenchem campos ocultos, humanos não
-      if (honeypot) return
       const buf = new Uint32Array(1)
       crypto.getRandomValues(buf)
       const proto = 'PS-' + (100000 + (buf[0] % 900000))
@@ -95,7 +93,7 @@ export function useSurvey({ questions = [], profileFields = [], areas = [], camp
       setSubmitted(true)
       saveSubmission(proto, identify.modo)
       persistResponse({ campaign, protocol: proto, modo: identify.modo, identify, profileFields, questions: activeQuestions, answers })
-        .catch(console.error)
+        .catch((err) => { console.error(err); setSaveError(true) })
       return
     }
     setStep((s) => s + 1)
@@ -124,9 +122,8 @@ export function useSurvey({ questions = [], profileFields = [], areas = [], camp
     answers,
     submitted,
     protocol,
+    saveError,
     bodyRef,
-    honeypot,
-    setHoneypot,
     progress,
     canAdvance,
     setAns,

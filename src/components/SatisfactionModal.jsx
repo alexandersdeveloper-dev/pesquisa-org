@@ -18,9 +18,8 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
     answers,
     submitted,
     protocol,
+    saveError,
     bodyRef,
-    honeypot,
-    setHoneypot,
     progress,
     canAdvance,
     setAns,
@@ -73,6 +72,14 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
           </svg>
           Protocolo {protocol}
         </div>
+        {saveError && (
+          <div className="save-error">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Erro ao salvar no servidor. Anote seu protocolo e informe ao administrador.
+          </div>
+        )}
       </div>
     )
 
@@ -302,17 +309,6 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
         <div className="modal-body" ref={bodyRef}>
           {showConfirm ? confirmContent : content}
         </div>
-
-        {/* honeypot: invisível para humanos, bots preenchem automaticamente */}
-        <input
-          type="text"
-          value={honeypot}
-          onChange={(e) => setHoneypot(e.target.value)}
-          tabIndex={-1}
-          autoComplete="new-password"
-          aria-hidden="true"
-          style={{ position: 'fixed', top: '-9999px', left: '-9999px', width: '0', height: '0', opacity: 0, pointerEvents: 'none' }}
-        />
 
         <div className="modal-foot">
           {showConfirm ? (
