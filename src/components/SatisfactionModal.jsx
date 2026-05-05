@@ -176,24 +176,21 @@ export default function SatisfactionModal({ onClose, onComplete, questions = [],
                   ))}
                 </select>
               </div>
-              {(() => {
-                const selectedArea = areas.find((a) => a.id === identify.area_id)
-                if (!selectedArea?.options?.length) return null
-                return (
-                  <div className="id-field">
-                    <label>Unidade <span className="field-required">*</span></label>
-                    <select
-                      value={identify.area_option_id}
-                      onChange={(e) => setIdentify((i) => ({ ...i, area_option_id: e.target.value }))}
-                    >
-                      <option value="">Selecione...</option>
-                      {selectedArea.options.map((opt) => (
-                        <option key={opt.id} value={opt.id}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                )
-              })()}
+              <div className="id-field">
+                <label>Unidade <span className="field-required">*</span></label>
+                <select
+                  value={identify.area_option_id}
+                  onChange={(e) => setIdentify((i) => ({ ...i, area_option_id: e.target.value }))}
+                  disabled={!identify.area_id}
+                >
+                  <option value="">
+                    {identify.area_id ? 'Selecione...' : 'Selecione a área primeiro'}
+                  </option>
+                  {(areas.find((a) => a.id === identify.area_id)?.options ?? []).map((opt) => (
+                    <option key={opt.id} value={opt.id}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
             </>
           )}
           {profileFields.map((field) => (

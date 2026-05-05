@@ -45,10 +45,20 @@ function initials(email = '') {
     : name.slice(0, 2).toUpperCase()
 }
 
+function CollapseIcon({ collapsed }) {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform .25s' }}>
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  )
+}
+
 export default function AdminApp() {
   const { session, signOut } = useAuth()
   const navigate = useNavigate()
-  const [campaign, setCampaign] = useState(null)
+  const [campaign, setCampaign]   = useState(null)
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
     supabase.from('campaigns').select('title, ends_at').eq('active', true).maybeSingle()
@@ -62,28 +72,33 @@ export default function AdminApp() {
 
   const email = session?.user?.email ?? ''
   const av    = initials(email)
+  const cls   = collapsed ? ' collapsed' : ''
 
   return (
     <>
       <div className="adm-stripe" aria-hidden="true"><i/><i/><i/><i/></div>
-      <div className="adm-layout">
+      <div className={'adm-layout' + cls}>
 
-        <aside className="adm-sidebar">
+        <aside className={'adm-sidebar' + cls}>
           <div className="adm-sidebar-brand">
             <img src="/assets/logpmp.png" alt="Prefeitura de Parintins" />
             <div className="adm-sb-meta">
               <div className="adm-sb-eyebrow">SEFIN</div>
               <div className="adm-sb-title">Painel Admin</div>
             </div>
+            <button className="adm-sb-collapse" onClick={() => setCollapsed((c) => !c)} title={collapsed ? 'Expandir menu' : 'Retrair menu'}>
+              <CollapseIcon collapsed={collapsed} />
+            </button>
           </div>
 
           <div className="adm-sb-section"><span className="adm-sb-lbl">Pesquisa</span></div>
           <nav className="adm-nav">
             {NAV_PESQUISA.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.end}
-                className={({ isActive }) => 'adm-nav-item' + (isActive ? ' active' : '')}>
+                className={({ isActive }) => 'adm-nav-item' + (isActive ? ' active' : '')}
+                title={collapsed ? n.label : undefined}>
                 <span className="adm-nav-icon">{n.icon}</span>
-                {n.label}
+                <span className="adm-nav-label">{n.label}</span>
               </NavLink>
             ))}
           </nav>
@@ -92,9 +107,10 @@ export default function AdminApp() {
           <nav className="adm-nav">
             {NAV_ADM.map((n) => (
               <NavLink key={n.to} to={n.to}
-                className={({ isActive }) => 'adm-nav-item' + (isActive ? ' active' : '')}>
+                className={({ isActive }) => 'adm-nav-item' + (isActive ? ' active' : '')}
+                title={collapsed ? n.label : undefined}>
                 <span className="adm-nav-icon">{n.icon}</span>
-                {n.label}
+                <span className="adm-nav-label">{n.label}</span>
               </NavLink>
             ))}
           </nav>
@@ -148,7 +164,7 @@ export default function AdminApp() {
               <Route index               element={<Dashboard />} />
               <Route path="profile-fields" element={<ProfileFields />} />
               <Route path="questions"      element={<Questions />} />
-              <Route path="areas"           element={<ServiceAreas />} />
+              <Route path="areas"          element={<ServiceAreas />} />
               <Route path="sections"       element={<Sections />} />
               <Route path="campaigns"      element={<Campaigns />} />
               <Route path="analytics"      element={<Analytics />} />

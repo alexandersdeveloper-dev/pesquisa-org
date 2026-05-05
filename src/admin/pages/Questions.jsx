@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useQuestions } from '../../hooks/useQuestions'
 import { useServiceAreas } from '../../hooks/useServiceAreas'
 import QuestionForm from '../components/QuestionForm'
@@ -10,6 +10,13 @@ export default function Questions() {
   const [mode, setMode]         = useState(null)   // 'create' | { id }
   const [confirm, setConfirm]   = useState(null)
   const [filterArea, setFilterArea] = useState('')  // '' = todas
+  const formRef = useRef(null)
+
+  useEffect(() => {
+    if (mode && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [mode])
 
   if (loading || areasLoading) return <div className="adm-loading">Carregando…</div>
 
@@ -30,7 +37,7 @@ export default function Questions() {
       </div>
 
       {mode && (
-        <div className="adm-card">
+        <div className="adm-card" ref={formRef}>
           <div className="adm-card-head">
             <div className="adm-card-head-left">
               <span className="adm-card-eyebrow">Formulário</span>
