@@ -115,9 +115,10 @@ export default function Questions() {
                   <td><span className={'adm-status ' + (q.active ? 'active' : 'inactive')}>{q.active ? 'Ativo' : 'Inativo'}</span></td>
                   <td className="adm-actions-cell">
                     <button className="adm-btn-sm" onClick={() => setMode({ id: q.id })}>Editar</button>
-                    {q.active && (
-                      <button className="adm-btn-sm adm-btn-danger-sm" onClick={() => setConfirm(q.id)}>Desativar</button>
-                    )}
+                    {q.active
+                      ? <button className="adm-btn-sm adm-btn-danger-sm" onClick={() => setConfirm(q.id)}>Desativar</button>
+                      : <button className="adm-btn-sm adm-btn-success-sm" onClick={() => update(q.id, { active: true })}>Reativar</button>
+                    }
                   </td>
                 </tr>
               ))}
