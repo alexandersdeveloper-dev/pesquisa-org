@@ -53,6 +53,7 @@ export default function Footer() {
         © 2026 Todos os direitos reservados — Prefeitura Municipal de Parintins · CNPJ
         04.329.736/0001-69 · Rua Jhonathas Pedrosa, s/n Centro · Parintins · Amazonas · CEP
         69151-030
+        <span className="footer-version">v1.0.0</span>
       </div>
     </footer>
   )
