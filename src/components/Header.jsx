@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { label: 'Portal da Transparência', href: 'https://transparencia.parintins.am.gov.br/' },
   { label: 'Ouvidoria',               href: 'https://transparencia.parintins.am.gov.br/?q=517-lista-8546-ouvidoria' },
   { label: 'SIC',                     href: 'https://transparencia.parintins.am.gov.br/?q=517-lista-8317-servico-de-informacao-ao-cidadao-e-sic' },
+  { label: 'Relatório',               href: '#' },
 ]
 
 export default function Header() {

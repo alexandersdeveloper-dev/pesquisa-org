@@ -15,11 +15,10 @@ export default function Footer() {
         <div className="f-col">
           <h5>Acesso rápido</h5>
           <ul>
-            <li><a href="#" rel="noopener noreferrer">Notícias</a></li>
-            <li><a href="#" rel="noopener noreferrer">Vídeos</a></li>
-            <li><a href="#" rel="noopener noreferrer">Galeria de Fotos</a></li>
-            <li><a href="#" rel="noopener noreferrer">Agenda</a></li>
-            <li><a href="#" rel="noopener noreferrer">Transparência</a></li>
+            <li><a href="https://parintins.am.gov.br/" target="_blank" rel="noopener noreferrer">Notícias</a></li>
+            <li><a href="https://parintins.am.gov.br/categoria/videos" target="_blank" rel="noopener noreferrer">Vídeos</a></li>
+            <li><a href="https://parintins.am.gov.br/categoria/galeria-de-fotos" target="_blank" rel="noopener noreferrer">Galeria de Fotos</a></li>
+            <li><a href="https://transparencia.parintins.am.gov.br/" target="_blank" rel="noopener noreferrer">Transparência</a></li>
           </ul>
         </div>
         <div className="f-col">
