@@ -7,72 +7,80 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm run dev       # dev server at http://localhost:5173
 npm run build     # production build → dist/
-npm run preview   # preview the production build locally
+npm run preview   # preview production build locally
 ```
 
-No linter, no test suite configured.
+Requires a `.env` file with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `.env.example`). No linter or test suite configured.
 
 ## Architecture
 
-React 18 + Vite 6, plain JS/JSX (no TypeScript). Single CSS file — no CSS modules, no Tailwind.
+React 18 + Vite 6, plain JS/JSX (no TypeScript). Single CSS file at `src/styles/global.css` — no CSS modules, no Tailwind. Supabase for backend (PostgreSQL + Auth).
 
-### State and data flow
+### Routes
 
 ```
-App.jsx
-  └── Home.jsx (page)
-        ├── Hero (onStart, blocked)
-        ├── InfoCards / HowItWorks / Trust / FAQ  ← static, no props
-        └── SatisfactionModal (onClose, onComplete)
+/                → public satisfaction survey (landing + modal)
+/admin/login     → Supabase email/password login
+/admin/*         → protected admin panel (AdminRoute checks session)
 ```
 
-`App.jsx` owns two pieces of state: `blocked` (whether the survey was already submitted, read from `localStorage` on mount) and `showSurvey`. It passes callbacks down; it never passes data upward.
+`App.jsx` wraps everything in `BrowserRouter` + `AuthProvider`. `AdminRoute` redirects to `/admin/login` if no session.
 
-`SatisfactionModal` is self-contained: it calls `useSurvey()` internally and receives only `onClose` / `onComplete` callbacks.
+### Public survey flow
 
-### Survey hook — `src/hooks/useSurvey.js`
+```
+Home.jsx
+  └── SatisfactionModal   ← receives onClose/onComplete callbacks only
+        └── useSurvey()   ← all survey state (step, identify, answers, submitted)
+```
 
-Single source of truth for all survey state. Key shape:
+`usePublicSurvey()` fetches all data from Supabase in parallel (campaign, profile_fields, survey_sections, survey_questions, question_options, service_areas) and passes it as props to `SatisfactionModal`.
 
-| State | Purpose |
+**Step model in `useSurvey`:**
+
+| Mode | Step 0 | Step 1 | Step 2 | Step 3… |
+|---|---|---|---|---|
+| `identificado` | mode choice | name/CPF/role | evaluation context | questions |
+| `anonimo` | mode choice | evaluation context | questions | — |
+
+`profileStep` and `questionOffset` are derived from `identify.modo`. Questions are filtered by `area_id` when areas are configured.
+
+### Response persistence
+
+Public submissions go through a **PostgreSQL SECURITY DEFINER function** `insert_survey_response`, called via `supabase.rpc()` in `src/services/surveyService.js`. This bypasses RLS entirely — do not replace with direct table inserts. The function validates `modo`, answer count (max 50), and whether the campaign is active before inserting into `responses` + `response_answers`.
+
+`localStorage` (keys prefixed `ps_`) tracks completion state per browser. CPF and name are **never sent to the database** — `persistResponse()` strips PII before building the `profile` jsonb payload.
+
+### Admin panel
+
+`AdminApp.jsx` is the layout shell (collapsible sidebar + topbar + `<Routes>`). All data pages are in `src/admin/pages/`. Each page uses a dedicated hook in `src/hooks/` for CRUD:
+
+| Hook | Tables |
 |---|---|
-| `step` | 0 = mode choice, 1 = identify fields, 2…N+1 = questions, then submit |
-| `identify` | `{ modo, cpf, nome, cargo, area, frequencia }` |
-| `answers` | `{ [questionId]: value }` |
-| `submitted / protocol` | set together on final submit |
+| `useProfileFields` | `profile_fields`, `profile_field_options` |
+| `useQuestions` | `survey_questions`, `question_options` |
+| `useSections` | `survey_sections` |
+| `useServiceAreas` | `service_areas`, `service_area_options` |
+| `useResponses` | `responses`, `response_answers` (paginated, admin-only) |
 
-`flatQuestions` is memoized from `SECTIONS` (flattened array of all questions across all sections). `totalSteps = 2 + flatQuestions.length`.
+All admin mutations call `logAudit()` from `src/services/auditService.js`, which writes to `audit_log` with the current user's id and a before/after diff.
 
-`canAdvance()` branches by step: step 0 requires `identify.modo`; step 1 requires different fields depending on `modo` (`identificado` → nome + cpf + cargo; `anonimo` → area + frequencia); question steps require non-null answers for `likert` and `multi` types; `text` always passes.
+Drag-and-drop reordering uses `@dnd-kit/core` + `@dnd-kit/sortable`. The shared wrapper is `src/admin/components/SortableList.jsx` (`SortableTr` + `SortableTableBody`). Reorder is disabled in Questions when an area filter is active.
 
-### Survey data — `src/data/survey.js`
+### Database — key RLS rules
 
-- `SECTIONS` — 4 sections, 10 questions total (8 likert/multi + 2 optional text)
-- `LIKERT` — 5 scale entries `{ v, lbl }` — icons live in `QuestionCard.jsx`, not here
-- `AREAS`, `FREQUENCIAS` — select options for the anonymous identify step
+- `responses` and `response_answers`: anon cannot read or insert directly. Admin (`authenticated`) can read. Inserts go through the SECURITY DEFINER function.
+- `profile_fields`, `survey_questions`, `survey_sections`, `service_areas`: anon can SELECT active rows only. Admin has full access.
+- `audit_log`: admin read/write only.
 
-### Persistence — `src/services/storage.js`
+### Security headers
 
-Only `localStorage`, keys prefixed `ps_`:
+Defined in `vercel.json` (not in `index.html` — CSP meta tags were removed because they blocked Vite HMR). `frame-ancestors 'none'` only works in HTTP headers, not meta tags.
 
-| Key | Value |
-|---|---|
-| `ps_submitted` | `"1"` after submit |
-| `ps_protocol` | confirmation code e.g. `PS-123456` |
-| `ps_modo` | `"identificado"` or `"anonimo"` |
+### Auth session
 
-Survey answers are **never persisted** — only the completion state is stored.
+`AuthContext` wraps Supabase Auth with a 2-hour inactivity timeout (mousemove, keydown, pointerdown, scroll reset the timer). `signOut()` clears the timer.
 
-### CSS — `src/styles/global.css`
+### CSS conventions
 
-One file, no scoping. Uses CSS custom properties (`--c-blue`, `--ink-900`, `--font-display`, etc.) defined in `:root`. Breakpoints: **1160px** (hide header meta, tighten hero gap), **980px** (collapse grids to 1 column), **600px** (mobile — modal goes full-screen with `height: 100dvh`, buttons stack full-width).
-
-The modal is desktop-centered (`max-width: 720px`) and becomes a full-screen sheet on mobile (`height: 100dvh; border-radius: 0`). Body scroll is locked via `useEffect` in `SatisfactionModal`.
-
-### Key design decisions
-
-- **No router** — single page, modal overlay handles all survey interaction.
-- **Confirmation on close** — `SatisfactionModal` manages a `showConfirm` state; native `confirm()` is not used anywhere.
-- **Identification choice at step 0** — user picks `identificado` (nome + CPF + cargo) or `anonimo` (área + frequência) before answering questions. Closing at step 0 skips the confirmation dialog.
-- **Likert icons** — 5 SVG outline faces defined as a `FACES` map in `QuestionCard.jsx`, keyed by scale value (1–5).
-- **`prefers-reduced-motion`** and **`hover: none`** media queries are at the end of `global.css` — all animations and hover transforms are gated there.
+Custom properties defined in `:root` (`--c-blue`, `--ink-900`, `--font-display`, etc.). Breakpoints: **1160px**, **980px**, **600px** (mobile — modal goes full-screen with `height: 100dvh`). `prefers-reduced-motion` and `hover: none` gates are at the end of the file.
