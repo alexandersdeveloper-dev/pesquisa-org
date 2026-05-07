@@ -31,7 +31,11 @@
 
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { overflow-x: hidden; scroll-behavior: smooth; }
+html { overflow-x: hidden; scroll-behavior: smooth; scrollbar-gutter: stable; }
+
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-soft); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
 html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink-900); }
 body {
   font-family: var(--font-sans);
@@ -715,7 +719,25 @@ h1.hero-title .accent {
 }
 
 /* ---------- Footer ---------- */
-footer { background: #fff; }
+footer {
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+footer::after {
+  content: '';
+  position: absolute;
+  top: -7rem;
+  right: -5rem;
+  width: min(50vw, 820px);
+  height: calc(100% + 10rem);
+  background: url('/assets/euamo.png') center / contain no-repeat;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+  transform: rotate(-20deg);
+  transform-origin: top right;
+}
 .footer-inner {
   max-width: 1280px;
   margin: 0 auto;
@@ -724,7 +746,7 @@ footer { background: #fff; }
   grid-template-columns: 1.4fr 1fr 1.1fr;
   gap: 56px;
   position: relative;
-  overflow: hidden;
+  z-index: 1;
 }
 .f-brand img { height: 56px; width: auto; max-width: 100%; }
 .f-brand p {
@@ -756,6 +778,8 @@ footer { background: #fff; }
   text-align: center;
   font-size: 12px;
   color: var(--ink-500);
+  position: relative;
+  z-index: 1;
 }
 .footer-version { margin-left: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-300); letter-spacing: .04em; }
 
@@ -1285,6 +1309,214 @@ textarea.tx:focus { outline: none; border-color: var(--ink-700); }
     padding: 12px 18px;
     padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
+}
+
+/* ================================================================
+   DARK MODE — cobertura completa de todos os componentes
+   ================================================================ */
+
+/* Tokens base */
+html.dark {
+  color-scheme: dark;
+  --ink-900: #e8edf5;
+  --ink-700: #c0cbd9;
+  --ink-500: #7a8799;
+  --ink-400: #556070;
+  --ink-300: #3a4557;
+  --line:    #2a3448;
+  --line-2:  #1e2a3c;
+  --bg:      #0f1622;
+  --bg-soft: #162030;
+  --bg-soft-2: #1a2840;
+  --bg-card: #162030;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.30), 0 1px 1px rgba(0,0,0,.20);
+  --shadow-md: 0 6px 24px -8px rgba(0,0,0,.50), 0 2px 6px rgba(0,0,0,.25);
+  --shadow-lg: 0 24px 60px -20px rgba(0,0,0,.60), 0 6px 18px rgba(0,0,0,.25);
+}
+
+
+/* Placeholder em inputs */
+html.dark ::placeholder { color: var(--ink-400); }
+
+/* ---- Header ---- */
+html.dark .header-wrap {
+  background: rgba(15,22,34,.98);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ---- Site nav (mobile dropdown) ---- */
+html.dark .site-nav-links { background: rgba(15,22,34,.97); }
+
+/* ---- Botões ---- */
+html.dark .btn-primary       { background: #1e3050; color: var(--ink-900); }
+html.dark .btn-primary:hover { background: #243d64; color: var(--ink-900); }
+
+html.dark .btn-services       { background: #1e3050; color: var(--ink-900); }
+html.dark .btn-services:hover { background: #243d64; color: var(--ink-900); }
+html.dark .btn-services .dot  { box-shadow: 0 0 0 3px rgba(255,184,41,.15); }
+
+html.dark .btn-next            { background: #1e3050; color: var(--ink-900); }
+html.dark .btn-next:hover      { background: #243d64; color: var(--ink-900); }
+html.dark .btn-next:disabled   { background: var(--ink-300); color: var(--bg); }
+
+html.dark .btn-ghost       { background: var(--bg-soft); color: var(--ink-700); }
+html.dark .btn-ghost:hover { background: var(--bg-soft-2); color: var(--ink-900); }
+html.dark .btn-back        { background: var(--bg-soft); }
+html.dark .btn-back:hover:not(:disabled) { background: var(--bg-soft-2); }
+
+/* ---- Hero eyebrow ---- */
+html.dark .h-eyebrow { background: #0e2240; color: #60a5fa; }
+
+/* ---- Token card ---- */
+html.dark .token-card { background: var(--bg-card); }
+html.dark .tc-head .pill     { background: #0f2d1a; color: #34d399; }
+html.dark .ta-btn             { background: var(--bg-soft); }
+html.dark .ta-btn:hover       { background: var(--bg-soft-2); border-color: var(--ink-500); }
+html.dark .ta-btn.copied      { background: #0f2d1a; border-color: #2aa05a; color: #34d399; }
+
+/* ---- Pillars ---- */
+html.dark .pillar              { background: var(--bg-card); }
+html.dark .pillar.b .ico       { background: #0e2a4a; color: #60a5fa; }
+html.dark .pillar.y .ico       { background: #2a1e05; color: #fbbf24; }
+html.dark .pillar.r .ico       { background: #2a0f0f; color: #f87171; }
+
+/* ---- Steps ---- */
+html.dark .step { background: var(--bg-card); }
+
+/* ---- Trust ---- */
+html.dark .trust-vis                    { background: var(--bg-card); }
+html.dark .vis-grid .cell.muted         { background: #2a3448; }
+
+/* ---- FAQ ---- */
+html.dark .faq-trigger:hover .plus { background: var(--bg-soft-2); border-color: var(--ink-500); }
+
+/* ---- Footer ---- */
+html.dark footer { background: var(--bg); }
+
+/* ---- Modal ---- */
+html.dark .modal       { background: var(--bg-card); }
+html.dark .modal-foot  { background: var(--bg-soft); }
+
+/* ---- Likert ---- */
+html.dark .lik       { background: var(--bg-soft); }
+html.dark .lik:hover { background: var(--bg-soft-2); }
+
+/* ---- Multi-choice ---- */
+html.dark .choice      { background: var(--bg-soft); }
+html.dark .choice.sel  { background: var(--bg-soft-2); }
+
+/* ---- Textarea ---- */
+html.dark textarea.tx { background: var(--bg-soft); }
+
+/* ---- Identify fields ---- */
+html.dark .id-field select,
+html.dark .id-field input  { background: var(--bg-soft); color: var(--ink-900); }
+html.dark .id-field textarea { background: var(--bg-soft); color: var(--ink-900); }
+
+/* ---- ID choice cards ---- */
+html.dark .id-choice-card      { background: var(--bg-soft); }
+html.dark .id-choice-card.sel  { background: var(--bg-soft-2); }
+
+/* ---- ID note ---- */
+html.dark .id-note { background: #0e2240; border-color: #1e3a5f; color: #60a5fa; }
+
+/* ---- Confirm exit ---- */
+html.dark .confirm-exit .warn-ico { background: #2a1e05; border-color: #92400e; color: #fbbf24; }
+
+/* ---- Status banners ---- */
+html.dark .save-error     { background: #2a0f0f; border-color: #7f1d1d; color: #fca5a5; }
+html.dark .blocked-banner { background: #2a0f0f; border-color: #7f1d1d; color: #fca5a5; }
+html.dark .blocked-banner .ico { background: #3f1515; }
+
+/* ---- Admin sidebar ---- */
+html.dark .adm-sidebar { background: var(--bg-card); }
+html.dark .adm-sb-cycle { background: linear-gradient(135deg, var(--bg-card), var(--bg-soft)); }
+
+/* ---- Admin topbar ---- */
+html.dark .adm-topbar { background: var(--bg-card); }
+
+/* ---- Admin KPI cards ---- */
+html.dark .adm-kpi                  { background: var(--bg-card); }
+html.dark .adm-kpi-b .adm-kpi-icon { background: #0e2a4a; color: #60a5fa; }
+html.dark .adm-kpi-o .adm-kpi-icon { background: #2a1505; color: #fb923c; }
+html.dark .adm-kpi-y .adm-kpi-icon { background: #2a1e05; color: #fbbf24; }
+html.dark .adm-kpi-r .adm-kpi-icon { background: #2a0f0f; color: #f87171; }
+
+/* ---- Admin cards ---- */
+html.dark .adm-card { background: var(--bg-card); }
+
+/* ---- Admin buttons ---- */
+html.dark .adm-btn-primary       { background: #1e3050; color: var(--ink-900); }
+html.dark .adm-btn-primary:hover { background: #243d64; color: var(--ink-900); }
+html.dark .adm-btn-secondary,
+html.dark .adm-btn-ghost           { background: var(--bg-soft); }
+html.dark .adm-btn-secondary:hover,
+html.dark .adm-btn-ghost:hover     { background: var(--bg-soft-2); }
+html.dark .adm-btn-sm              { background: var(--bg-soft); }
+html.dark .adm-btn-sm:hover        { background: var(--bg-soft-2); }
+html.dark .adm-btn-danger-sm       { background: #2a0f0f; border-color: #7f1d1d; color: #fca5a5; }
+html.dark .adm-btn-danger-sm:hover { background: #3f1515; }
+html.dark .adm-btn-success-sm      { background: #0f2d1a; border-color: #166534; color: #86efac; }
+html.dark .adm-btn-success-sm:hover { background: #163d24; }
+
+/* ---- Admin forms ---- */
+html.dark .adm-field input[type="text"],
+html.dark .adm-field input[type="date"],
+html.dark .adm-field input[type="number"],
+html.dark .adm-field input[type="email"],
+html.dark .adm-field input[type="password"],
+html.dark .adm-field select,
+html.dark .adm-field textarea   { background: var(--bg-soft); color: var(--ink-900); }
+html.dark .adm-filter-select    { background: var(--bg-soft); color: var(--ink-900); }
+html.dark .adm-select-sm        { background: var(--bg-soft); color: var(--ink-900); }
+html.dark .adm-options-add input { background: var(--bg-soft); color: var(--ink-900); }
+
+/* ---- Admin pills ---- */
+html.dark .adm-pill-green { background: #0f2d1a; color: #86efac; }
+html.dark .adm-pill-amber { background: #2a1e05; color: #fbbf24; }
+html.dark .adm-pill-red   { background: #2a0f0f; color: #fca5a5; }
+html.dark .adm-pill-blue  { background: #0e2a4a; color: #93c5fd; }
+
+/* ---- Admin badges ---- */
+html.dark .adm-badge--create { background: #0f2d1a; color: #86efac; border-color: #166534; }
+html.dark .adm-badge--update { background: #0e2a4a; color: #93c5fd; border-color: #1e40af; }
+html.dark .adm-badge--delete { background: #2a0f0f; color: #fca5a5; border-color: #7f1d1d; }
+html.dark .adm-badge-area    { background: #1e1040; color: #c4b5fd; border-color: #4c1d95; }
+
+/* ---- Admin dialog ---- */
+html.dark .adm-dialog       { background: var(--bg-card); }
+html.dark .adm-dialog-foot  { background: var(--bg-soft); }
+
+/* ---- Admin login ---- */
+html.dark .adm-login-wrap { background: var(--bg); }
+html.dark .adm-login-card { background: var(--bg-card); }
+
+/* ---- Admin misc ---- */
+html.dark .adm-area-opt-item { background: var(--bg-soft); }
+html.dark .adm-alert-warning { background: #2a1e05; border-color: #92400e; color: #fbbf24; }
+html.dark .adm-pre           { background: var(--bg-soft-2); }
+
+/* Scrollbar track/thumb — cores adaptam via tokens (claro e escuro) */
+
+/* ---- Botão de alternância dark/light ---- */
+.btn-dark-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  color: var(--ink-500);
+  margin-left: 8px;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.btn-dark-toggle:hover {
+  background: var(--bg-soft);
+  border-color: var(--ink-400);
+  color: var(--ink-900);
 }
 
 /* ---------- Hover: somente em dispositivos com ponteiro real ---------- */

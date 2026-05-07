@@ -17,7 +17,7 @@ const FEATURES = [
       </svg>
     ),
     strong: 'Leva menos de 3 minutos',
-    sub: '10 questões objetivas e abertas',
+    sub: 'Questões objetivas e abertas',
   },
   {
     icon: (

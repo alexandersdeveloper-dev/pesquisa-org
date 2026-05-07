@@ -22,7 +22,7 @@ const STEPS = [
   {
     n: 'Etapa 03',
     title: 'Responda com sinceridade',
-    body: 'São 10 questões sobre os serviços da Prefeitura — objetivas, múltipla escolha e abertas. Leva cerca de 8 minutos.',
+    body: 'Questões sobre os serviços da Prefeitura — objetivas, múltipla escolha e abertas.',
     icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
